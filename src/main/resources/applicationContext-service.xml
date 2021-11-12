@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd">
+    <import resource="classpath:applicationContext-dao.xml" />
+    <!-- 设置业务逻辑层的包扫描器 -->
+    <context:component-scan base-package="com.bsuc.service" />
+    <!-- 设置事务管理器 -->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <!-- 添加事务的切面 -->
+    <tx:advice id="myAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!-- 查询事务 -->
+            <tx:method name="*select*" read-only="true"/>
+            <tx:method name="*find*"  read-only="true"/>
+            <tx:method name="*get*"  read-only="true"/>
+            <tx:method name="*search*"  read-only="true"/>
+            <!-- 添加事务 -->
+            <tx:method name="*insert*" />
+            <tx:method name="*save*" />
+            <tx:method name="*add*" />
+            <!-- 删除事务 -->
+            <tx:method name="*delete*" />
+            <tx:method name="*remove*" />
+            <tx:method name="*clear*" />
+            <!-- 修改事务 -->
+            <tx:method name="*update*" />
+            <tx:method name="modify" />
+            <tx:method name="change" />
+            <tx:method name="set" />
+            <tx:method name="*" propagation="SUPPORTS" />
+        </tx:attributes>
+    </tx:advice>
+    <!-- 完成切面和切入点的结合 -->
+    <aop:config>
+        <aop:pointcut id="myPointcut" expression="execution(* com.bsuc.service.*.*(..))"/>
+        <aop:advisor advice-ref="myAdvice" pointcut-ref="myPointcut" />
+    </aop:config>
+</beans>
